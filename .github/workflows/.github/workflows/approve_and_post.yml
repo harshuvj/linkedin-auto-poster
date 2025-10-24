@@ -1,0 +1,62 @@
+name: Approve and Post to LinkedIn
+
+on:
+  repository_dispatch:
+    types: [whatsapp_approval]
+
+permissions:
+  contents: write
+
+jobs:
+  approve_and_post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download draft artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: draft
+          path: .
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Check approval and post
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+          WHATSAPP_PHONE_ID: ${{ secrets.WHATSAPP_PHONE_ID }}
+          WHATSAPP_TO_NUMBER: ${{ secrets.WHATSAPP_TO_NUMBER }}
+        run: |
+          python - <<'PY'
+import json, os, sys
+from datetime import datetime, timezone, timedelta
+
+# read dispatch payload
+event_path = os.environ.get("GITHUB_EVENT_PATH")
+with open(event_path,'r') as f:
+    ev = json.load(f)
+
+payload = ev.get("client_payload", {})
+approval_ts = payload.get("timestamp")
+if approval_ts:
+    approval_time = datetime.fromisoformat(approval_ts)
+else:
+    approval_time = datetime.now(timezone.utc)
+
+with open("draft_post.json","r",encoding="utf-8") as f:
+    draft = json.load(f)
+
+gen_time = datetime.fromisoformat(draft["meta"]["generated_utc"])
+cutoff = gen_time + timedelta(minutes=30)
+
+if approval_time <= cutoff:
+    print("Approval valid — posting to LinkedIn")
+    os.environ["LINKEDIN_ACCESS_TOKEN"] = os.environ.get("LINKEDIN_ACCESS_TOKEN")
+    os.system("python post_to_linkedin.py")
+else:
+    print("Approval after cutoff — skipping post")
+PY
