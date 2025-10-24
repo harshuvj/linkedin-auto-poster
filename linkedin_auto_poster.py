@@ -2,45 +2,57 @@ import os
 import json
 import requests
 from datetime import datetime
-import google.generativeai as genai
 
 # Configuration from environment variables
 LINKEDIN_ACCESS_TOKEN = os.environ.get('LINKEDIN_ACCESS_TOKEN')
 LINKEDIN_PERSON_URN = os.environ.get('LINKEDIN_PERSON_URN')
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 
 def generate_post_content():
-    """Generate LinkedIn post content using Google Gemini (free tier)"""
-    genai.configure(api_key=GEMINI_API_KEY)
-    
-    # Use the latest Gemini model name
-    model = genai.GenerativeModel('gemini-1.5-flash')
+    """Generate LinkedIn post content using Groq (free tier)"""
     
     prompt = f"""Generate a professional LinkedIn post about data science, machine learning, or AI.
     
     Requirements:
     - 150-250 words
-    - Include relevant hashtags
+    - Include relevant hashtags (3-5 hashtags)
     - Make it engaging and informative
     - Focus on: trends, tips, insights, or interesting facts
     - Today's date: {datetime.now().strftime('%B %d, %Y')}
-    - Vary topics: ML algorithms, data visualization, AI ethics, career tips, tools, etc.
+    - Vary topics: ML algorithms, data visualization, AI ethics, career tips, tools, best practices, etc.
+    - Write in a professional but conversational tone
     
-    Return only the post text, ready to publish."""
+    Return only the post text, ready to publish. No extra commentary."""
     
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        print(f"Error generating content with gemini-1.5-flash: {e}")
-        # Fallback to gemini-1.5-pro if flash fails
-        try:
-            model = genai.GenerativeModel('gemini-1.5-pro')
-            response = model.generate_content(prompt)
-            return response.text.strip()
-        except Exception as e2:
-            print(f"Error with gemini-1.5-pro: {e2}")
-            raise Exception(f"Failed to generate content: {e2}")
+    headers = {
+        'Authorization': f'Bearer {GROQ_API_KEY}',
+        'Content-Type': 'application/json'
+    }
+    
+    data = {
+        "model": "mixtral-8x7b-32768",
+        "messages": [
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 500
+    }
+    
+    response = requests.post(
+        'https://api.groq.com/openai/v1/chat/completions',
+        headers=headers,
+        json=data,
+        timeout=30
+    )
+    
+    if response.status_code == 200:
+        result = response.json()
+        return result['choices'][0]['message']['content'].strip()
+    else:
+        raise Exception(f"Groq API error: {response.status_code} - {response.text}")
 
 def get_person_urn():
     """Get LinkedIn person URN (user ID) - tries multiple methods"""
