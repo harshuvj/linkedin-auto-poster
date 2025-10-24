@@ -12,7 +12,9 @@ GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 def generate_post_content():
     """Generate LinkedIn post content using Google Gemini (free tier)"""
     genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel('gemini-pro')
+    
+    # Use the latest Gemini model name
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
     prompt = f"""Generate a professional LinkedIn post about data science, machine learning, or AI.
     
@@ -26,8 +28,19 @@ def generate_post_content():
     
     Return only the post text, ready to publish."""
     
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error generating content with gemini-1.5-flash: {e}")
+        # Fallback to gemini-1.5-pro if flash fails
+        try:
+            model = genai.GenerativeModel('gemini-1.5-pro')
+            response = model.generate_content(prompt)
+            return response.text.strip()
+        except Exception as e2:
+            print(f"Error with gemini-1.5-pro: {e2}")
+            raise Exception(f"Failed to generate content: {e2}")
 
 def get_person_urn():
     """Get LinkedIn person URN (user ID) - tries multiple methods"""
