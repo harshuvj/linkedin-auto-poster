@@ -11,6 +11,15 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 def generate_post_content():
     """Generate viral LinkedIn post content using advanced engagement strategies"""
     
+    # Verify API key exists
+    if not GROQ_API_KEY or GROQ_API_KEY == "":
+        raise Exception("GROQ_API_KEY environment variable is not set or empty")
+    
+    # Debug: Show first/last chars of key (for troubleshooting)
+    key_preview = f"{GROQ_API_KEY[:10]}...{GROQ_API_KEY[-10:]}" if len(GROQ_API_KEY) > 20 else "KEY TOO SHORT"
+    print(f"Using Groq API key: {key_preview}")
+    print(f"Key length: {len(GROQ_API_KEY)} characters")
+    
     # Determine day-specific theme
     day_of_week = datetime.now().strftime('%A')
     day_themes = {
