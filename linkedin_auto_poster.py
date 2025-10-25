@@ -59,7 +59,11 @@ def generate_post_content():
     
     prompt = f"""You are an ELITE LinkedIn creator. Write a DATA-RICH, SUBSTANTIVE post that provides real value.
 
-CRITICAL: DO NOT include section headers or template labels. Write ONLY the actual post content.
+CRITICAL: 
+- DO NOT include section headers or template labels
+- Write ONLY the actual post content
+- MUST BE UNDER 2800 CHARACTERS (LinkedIn limit is 3000, leave buffer)
+- This is approximately 400-480 words MAX
 
 Context:
 - Theme: {theme}
@@ -68,60 +72,58 @@ Context:
 - Pain Points: {pain_points}
 - Date: {datetime.now().strftime('%B %d, %Y')}
 
-YOUR POST MUST INCLUDE:
+YOUR POST STRUCTURE:
 
-1. OPENING (1-2 lines with specific data):
-Use a data-driven opening like: "New research from Gartner reveals 68% of {industry_focus} organizations face [challenge]. Here's what the top 10% do differently."
+1. OPENING (1-2 lines with data):
+"New research from [Source] reveals [X]% of {industry_focus} organizations face [challenge]. Here's what the top performers do differently."
 
-2. SUBSTANTIAL CONTENT (4-6 paragraphs with real insights):
+2. CORE CONTENT (3-4 paragraphs):
 
-Para 1 - Context with DATA:
-"According to [source], {industry_focus} organizations face [challenge]. The numbers: [stat 1], [stat 2], [stat 3]. This translates to $[amount] annually."
+Para 1 - Problem with DATA:
+"According to [source], the numbers are stark: [stat 1], [stat 2], [stat 3]. For a [typical org size], that's $[amount] annually."
 
-Para 2 - Root Cause:
-"Why? Three factors: First, [reason with data]. Second, [reason with data]. Third, [reason with data]."
+Para 2 - Root Causes:
+"Three factors drive this: [reason 1 with brief data], [reason 2 with brief data], [reason 3 with brief data]."
 
-Para 3 - Solution with depth:
-"[Technology] addresses this by [mechanism]. In practice: [capability 1 with impact], [capability 2 with impact], [capability 3 with impact]."
+Para 3 - Solution with Impact:
+"[Technology/approach] addresses this through [mechanism]. Real implementation data: [Company type] saw [metric 1]: [X]% → [Y]% ([Z]% gain), [metric 2]: saved $[amount], ROI: [multiple]x in [timeframe]."
 
-Para 4 - Real Results with NUMBERS:
-"Implementation data from [timeframe]: [Company type] with [scale] saw: → [Metric]: [X]% to [Y]% (a [Z]% gain), → [Metric]: reduced by $[amount], → ROI: [multiple]x within [timeframe]"
+Para 4 - Practical Steps:
+"{booster} [Key insight]
 
-Para 5 - Strategic Insight:
-"{booster} [Deep insight]. The underlying principle: [explain why]. This matters because [strategic implication]."
-
-Para 6 - Practical Steps:
-"Implementation roadmap: Months 1-2: [actions with metrics, budget]. Months 3-4: [actions with metrics, budget]. Months 5-8: [actions with metrics, budget]. Timeline to ROI: [timeframe]."
+Quick implementation approach:
+→ Phase 1 (Months 1-2): [Specific action with budget $X-Y]
+→ Phase 2 (Months 3-4): [Specific action with budget $X-Y]
+→ Timeline to ROI: [months]"
 
 3. ENGAGEMENT:
-"Based on your experience: A) [scenario] or B) [scenario]? Drop A or B below 👇"
+"What's your experience? A) [scenario] or B) [scenario]? Drop A or B below 👇"
 
-4. RESOURCES WITH HYPERLINKS:
-"📚 Essential Reading:
-
-→ [Benefit]: [Source] Report (2024)
-   https://www.mckinsey.com/mgi/our-research
-
-→ [Benefit]: [Source] Study (2024)
-   https://www.gartner.com/en/research
-
-💡 [Why these resources matter]"
-
-Use REAL URLs from: McKinsey (https://www.mckinsey.com/mgi/our-research), Harvard Business Review (https://hbr.org/topic/subject/data-and-analytics), Gartner (https://www.gartner.com/en/research), Deloitte (https://www2.deloitte.com/us/en/insights.html), MIT Tech Review (https://www.technologyreview.com/), PwC (https://www.pwc.com/gx/en/issues/data-and-analytics.html), Forrester (https://www.forrester.com/research/)
+4. RESOURCES (Keep brief):
+"📚 Resources:
+→ [Benefit]: [Source] (2024) - https://www.mckinsey.com/mgi/our-research
+→ [Benefit]: [Source] (2024) - https://www.gartner.com/en/research"
 
 5. HASHTAGS:
-#DataScience #ArtificialIntelligence {industry_hashtags} #DataStrategy #PredictiveAnalytics
+"#DataScience #AI {industry_hashtags} #DataStrategy #PredictiveAnalytics"
 
-REQUIREMENTS:
-- 450-600 words (SUBSTANTIVE length)
-- 8-10 specific statistics
-- Real data and insights
-- Educational value
-- Natural flow (no section headers)
-- Short paragraphs with line breaks
-- Proper hyperlinks in resources
+STRICT REQUIREMENTS:
+- MAXIMUM 2800 characters total (check your output!)
+- 400-480 words MAX
+- 6-8 specific statistics (quality over quantity)
+- 3-4 paragraphs only
+- Keep resources brief (2 links max)
+- Short paragraphs (2-3 sentences each)
+- Line breaks for readability
 
-Write ONLY the final post content, ready to publish."""
+WRITE CONCISELY:
+- Use short sentences (8-12 words ideal)
+- Cut unnecessary words
+- Be direct and punchy
+- Every word must add value
+- Prioritize data and insights over fluff
+
+Write the complete post now. Remember: UNDER 2800 CHARACTERS."""
     
     headers = {
         'Authorization': f'Bearer {GROQ_API_KEY}',
@@ -141,7 +143,7 @@ Write ONLY the final post content, ready to publish."""
             }
         ],
         "temperature": 0.82,
-        "max_tokens": 1400,
+        "max_tokens": 850,
         "top_p": 0.92,
         "frequency_penalty": 0.3,
         "presence_penalty": 0.4
@@ -157,6 +159,20 @@ Write ONLY the final post content, ready to publish."""
     if response.status_code == 200:
         result = response.json()
         content = result['choices'][0]['message']['content'].strip()
+        
+        # CRITICAL: LinkedIn has 3000 character limit
+        if len(content) > 2950:
+            print(f"⚠️ Content too long ({len(content)} chars), truncating to fit LinkedIn limit...")
+            # Truncate intelligently at last complete sentence before 2900 chars
+            truncated = content[:2900]
+            last_period = truncated.rfind('.')
+            last_newline = truncated.rfind('\n')
+            cut_point = max(last_period, last_newline)
+            if cut_point > 2000:  # Only truncate at sentence if reasonable
+                content = content[:cut_point + 1]
+            else:
+                content = content[:2900] + "..."
+            print(f"✂️ Truncated to {len(content)} characters")
         
         # Post-processing: Ensure no political/comparison content
         banned_patterns = [
