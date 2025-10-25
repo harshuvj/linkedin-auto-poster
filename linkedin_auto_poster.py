@@ -26,16 +26,16 @@ def generate_post_content():
     
     # Advanced post type rotation with viral mechanics
     viral_formats = [
-        {'type': 'contrarian_insight', 'hook': 'what nobody tells you'},
-        {'type': 'transformation_story', 'hook': 'before/after numbers'},
-        {'type': 'mistake_autopsy', 'hook': 'costly failure'},
-        {'type': 'step_by_step', 'hook': 'exact process'},
-        {'type': 'trend_analysis', 'hook': 'emerging shift'},
-        {'type': 'counterintuitive', 'hook': 'opposite of common belief'},
-        {'type': 'implementation', 'hook': 'how we built it'},
-        {'type': 'data_story', 'hook': 'surprising statistics'},
-        {'type': 'problem_solution', 'hook': 'hidden challenge'},
-        {'type': 'future_forecast', 'hook': 'next 12 months'}
+        {'type': 'contrarian_insight', 'hook': 'what nobody tells you', 'title_style': 'The [Stat]% Truth About [Topic]'},
+        {'type': 'transformation_story', 'hook': 'before/after numbers', 'title_style': 'How [Company Type] Saved $[Amount] With [Tech]'},
+        {'type': 'mistake_autopsy', 'hook': 'costly failure', 'title_style': 'Why [Stat]% of [Initiatives] Fail (And How to Avoid It)'},
+        {'type': 'step_by_step', 'hook': 'exact process', 'title_style': 'The [Number]-Step Framework to [Outcome]'},
+        {'type': 'trend_analysis', 'hook': 'emerging shift', 'title_style': '[Stat]% of [Industry] Are Making This Shift'},
+        {'type': 'counterintuitive', 'hook': 'opposite of common belief', 'title_style': 'Why [Common Belief] Is Wrong About [Topic]'},
+        {'type': 'implementation', 'hook': 'how we built it', 'title_style': 'Inside [Company Type]\'s $[Amount] [Tech] Rollout'},
+        {'type': 'data_story', 'hook': 'surprising statistics', 'title_style': '[Stat]% of [Industry] Still Don\'t Know This'},
+        {'type': 'problem_solution', 'hook': 'hidden challenge', 'title_style': 'Solving the $[Amount] [Problem] in [Industry]'},
+        {'type': 'future_forecast', 'hook': 'next 12 months', 'title_style': 'What [Industry] Will Look Like in [Timeframe]'}
     ]
     day_number = datetime.now().timetuple().tm_yday
     post_format = viral_formats[day_number % len(viral_formats)]
@@ -57,27 +57,42 @@ def generate_post_content():
     engagement_boosters = ['📌 Pro tip:', '⚡ Quick win:', '🎯 Key insight:', '💎 Golden rule:', '🔑 Critical factor:', '⚠️ Watch out:', '✨ Breakthrough:', '🚨 Reality check:']
     booster = engagement_boosters[day_number % len(engagement_boosters)]
     
-    prompt = f"""You are an ELITE LinkedIn creator. Write a DATA-RICH, SUBSTANTIVE post that provides real value.
+    prompt = f"""You are an ELITE LinkedIn creator. Write a DATA-RICH, SUBSTANTIVE post with a CATCHY TITLE.
 
 CRITICAL: 
-- DO NOT include section headers or template labels
-- Write ONLY the actual post content
-- MUST BE UNDER 2800 CHARACTERS (LinkedIn limit is 3000, leave buffer)
-- This is approximately 400-480 words MAX
+- Post MUST start with a ONE-LINE catchy title
+- Title format: "{theme}: [Your Catchy Subtitle]"
+- Subtitle should be attention-grabbing and relevant to the post content
+- Total post MUST BE UNDER 2800 CHARACTERS (LinkedIn limit is 3000)
+- DO NOT include section headers or template labels in the body
 
 Context:
 - Theme: {theme}
 - Industry: {industry_focus}
 - Post Type: {post_format['type']}
+- Title Style Inspiration: {post_format['title_style']}
 - Pain Points: {pain_points}
 - Date: {datetime.now().strftime('%B %d, %Y')}
 
+TITLE EXAMPLES (Choose a style that fits your content):
+- "{theme}: Why 68% of Fraud Models Fail (And How to Fix Yours)"
+- "{theme}: The $23M Mistake Most Banks Are Making"
+- "{theme}: How Regional Banks Are Beating Big Tech at AI"
+- "{theme}: The 3-Step Framework That Cut Costs 47%"
+- "{theme}: What 247 Implementations Reveal About ROI"
+- "{theme}: The Hidden $850B Opportunity in Healthcare Data"
+
 YOUR POST STRUCTURE:
 
-1. OPENING (1-2 lines with data):
-"New research from [Source] reveals [X]% of {industry_focus} organizations face [challenge]. Here's what the top performers do differently."
+**TITLE LINE (Max 100 characters after theme):**
+{theme}: [Create a specific, data-driven, catchy subtitle that hooks the reader]
 
-2. CORE CONTENT (3-4 paragraphs):
+[Blank line]
+
+**OPENING (1-2 lines with data):**
+"New research from [Source] reveals [X]% of {industry_focus} organizations face [challenge]. Here's what top performers do differently."
+
+**CORE CONTENT (3-4 paragraphs):**
 
 Para 1 - Problem with DATA:
 "According to [source], the numbers are stark: [stat 1], [stat 2], [stat 3]. For a [typical org size], that's $[amount] annually."
@@ -91,39 +106,40 @@ Para 3 - Solution with Impact:
 Para 4 - Practical Steps:
 "{booster} [Key insight]
 
-Quick implementation approach:
-→ Phase 1 (Months 1-2): [Specific action with budget $X-Y]
-→ Phase 2 (Months 3-4): [Specific action with budget $X-Y]
-→ Timeline to ROI: [months]"
+Quick implementation:
+→ Phase 1 (Months 1-2): [Action with budget]
+→ Phase 2 (Months 3-4): [Action with budget]
+→ ROI timeline: [months]"
 
-3. ENGAGEMENT:
-"What's your experience? A) [scenario] or B) [scenario]? Drop A or B below 👇"
+**ENGAGEMENT:**
+"What's your experience? A) [scenario] or B) [scenario]? Drop A or B 👇"
 
-4. RESOURCES (Keep brief):
+**RESOURCES:**
 "📚 Resources:
 → [Benefit]: [Source] (2024) - https://www.mckinsey.com/mgi/our-research
 → [Benefit]: [Source] (2024) - https://www.gartner.com/en/research"
 
-5. HASHTAGS:
+**HASHTAGS:**
 "#DataScience #AI {industry_hashtags} #DataStrategy #PredictiveAnalytics"
 
 STRICT REQUIREMENTS:
-- MAXIMUM 2800 characters total (check your output!)
-- 400-480 words MAX
-- 6-8 specific statistics (quality over quantity)
+- Title must be ONE LINE, catchy, professional, data-driven
+- MAXIMUM 2800 characters TOTAL (including title)
+- 400-450 words MAX
+- 6-8 specific statistics
 - 3-4 paragraphs only
-- Keep resources brief (2 links max)
-- Short paragraphs (2-3 sentences each)
+- Keep resources brief (2 links)
+- Short paragraphs (2-3 sentences)
 - Line breaks for readability
 
-WRITE CONCISELY:
-- Use short sentences (8-12 words ideal)
-- Cut unnecessary words
-- Be direct and punchy
-- Every word must add value
-- Prioritize data and insights over fluff
+TITLE GUIDELINES:
+- Use specific numbers when possible: "68%", "$23M", "247 cases"
+- Create curiosity gap: "Why...", "What...", "How..."
+- Show value proposition: benefit or problem solved
+- Professional tone, not clickbait
+- Max 100 characters after the theme emoji
 
-Write the complete post now. Remember: UNDER 2800 CHARACTERS."""
+Write the complete post now, starting with the title. UNDER 2800 CHARACTERS TOTAL."""
     
     headers = {
         'Authorization': f'Bearer {GROQ_API_KEY}',
